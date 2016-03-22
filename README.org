@@ -1,0 +1,90 @@
+#+TITLE: Call Graph Construction
+
+The code is tested under =LLVM 3.9.0=
+* Compile and Run
+To compile the tool itself, run the following commands in root directory:
+#+BEGIN_SRC shell
+cmake .
+make
+#+END_SRC
+
+This will generate =hebicg/libHebiCallGraphPass.so=
+
+** LLVM Bitcode file
+The tool performs on LLVM bitcode file(=.bc= file).
+To compile a =.c= or =.cpp= file into =.bc= file, simply run:
+
+#+BEGIN_SRC shell
+clang -g -O0 -emit-llvm xx.c -c -o xx.bc
+#+END_SRC
+
+To compile a whole benchmark program, we can make use of the Makefile shipped with the benchmark.
+To do that, use the following configure and make idioms:
+
+#+BEGIN_SRC shell
+tar zxvf gawk-4.1.3.tar.gz
+cd gawk-4.1.3
+./configure CC=clang
+make CC=clang CFLAGS="-g -O0 -emit-llvm"
+#+END_SRC
+
+Note that all the generated =.o= files are actually =.bc= files, because we give =clang= the =-emit-llvm= option.
+The reason the suffix is left with =.o= is that they are written in the Makefile, which is tedious to modify.
+And on Unix system, the suffix really doesn't matter.
+
+Finally, to link all the bitcode files into one single bitcode file to enable call graph generation across file boundary, use the =llvm-link= tool:
+
+#+BEGIN_SRC shell
+llvm-link *.bc -o single.bc
+#+END_SRC
+
+** Run the tool
+To run the tool against the bitcode file, issue the following command
+
+#+BEGIN_SRC shell
+opt -load ../hebicg/libHebiCallGraphPass.so -hebicg /path/to/benchmark.bc
+#+END_SRC
+
+The call graph will be outputed as text format, as well as an =out.dot= file.
+Issue the command to convert to =out.png= for easy viewing.
+
+#+BEGIN_SRC shell
+dot -Tpng out.dot -o out.png
+#+END_SRC
+
+
+** Using scripts
+The script =benchmark/test.sh= is a simple wrapper for the above commands.
+The common workflow is:
+
+#+BEGIN_SRC shell
+cd benchmark
+make # compile the c and cpp file in benchmark folder
+./test.sh test1.bc
+make png # => out.png
+./test.sh simple-c-func.bc
+make png # => out.png
+./test.sh gawk-xxx/main.o
+make png # => out.png
+#+END_SRC
+
+* Experiment Result
+| Benchmark  | part   | node count | edge count | Time(s) |
+|------------+--------+------------+------------+---------|
+| gawk-4.1.3 | main.o |         24 |         41 |   0.077 |
+| gawk-4.1.3 | all    |        470 |       1065 |   2.734 |
+| make-4.1   | main.o |         17 |         25 |   0.112 |
+| make-4.1   | all    |        254 |        768 |   0.966 |
+
+For the =gawk/main.o= file,
+the generated png file is:
+[[./gawk-main.png]]
+
+After llvm-link all the bitcode file to a single bitcode file, we get the complete call graph:
+[[./gawk-single.png]]
+
+Similarly, for another real world benchmark, the =make-4.1=, call graph for =make-4.1/main.o=:
+[[./make-main.png]]
+
+the complete call graph is:
+[[./make-single.png]]
