@@ -1,11 +1,11 @@
 #+TITLE: Call Graph Construction
 
-The code is tested under =LLVM 3.9.0=
+The code is tested under =LLVM 11.0.1=
 * Compile and Run
 To compile the tool itself, run the following commands in root directory:
 #+BEGIN_SRC shell
-cmake .
-make
+cmake -S . -B ./build/
+make -C ./build/
 #+END_SRC
 
 This will generate =hebicg/libHebiCallGraphPass.so=
@@ -42,7 +42,7 @@ llvm-link *.bc -o single.bc
 To run the tool against the bitcode file, issue the following command
 
 #+BEGIN_SRC shell
-opt -load ../hebicg/libHebiCallGraphPass.so -hebicg /path/to/benchmark.bc
+opt -load ../build/hebicg/libHebiCallGraphPass.so -hebicg /path/to/benchmark.bc
 #+END_SRC
 
 The call graph will be outputed as text format, as well as an =out.dot= file.
@@ -88,3 +88,9 @@ Similarly, for another real world benchmark, the =make-4.1=, call graph for =mak
 
 the complete call graph is:
 [[./make-single.png]]
+
+* Related LLVM Documentation
+
+https://llvm.org/docs/WritingAnLLVMPass.html
+
+https://llvm.org/docs/CMake.html#cmake-out-of-source-pass

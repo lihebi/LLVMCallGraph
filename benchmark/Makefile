@@ -9,8 +9,8 @@ simple-c-func.bc : simple-c-func.c
 	llvm-dis $@
 
 test:
-	opt -load ../hebicg/libHebiCallGraphPass.so -hebicg test1.bc
-	opt -load ../hebicg/libHebiCallGraphPass.so -hebicg simple-c-func.bc
+	opt -load ../build/hebicg/libHebiCallGraphPass.so -hebicg test1.bc
+	opt -load ../build/hebicg/libHebiCallGraphPass.so -hebicg simple-c-func.bc
 
 png:
 	dot -Tpng out.dot -o out.png

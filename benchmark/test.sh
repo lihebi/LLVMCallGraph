@@ -1,2 +1,2 @@
 #!/bin/bash
-opt -load ../hebicg/libHebiCallGraphPass.so -hebicg $1
+opt -load ../build/hebicg/libHebiCallGraphPass.so -hebicg $1
