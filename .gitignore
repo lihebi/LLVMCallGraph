@@ -2,3 +2,7 @@ CMakeFiles
 CMakeCache
 *.cmake
 *.so
+build
+compile_commands.json
+.cache
+*.dot

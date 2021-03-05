@@ -1,19 +1,23 @@
 #include "hebicg.h"
 #include <llvm/Analysis/CallGraph.h>
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <iostream>
 #include <deque>
 #include <map>
 #include <set>
 #include <fstream>
 
+
 std::string func_name(Function *func) {
   if (func->getName() == "main") return "main";
   DISubprogram *disubprogram = func->getSubprogram();
   if (disubprogram) {
-    return disubprogram->getName().str();
+    return "\"" + disubprogram->getName().str() + "\"";
   }
   return "";
 }
+
 class HebiCallGraph {
 public:
   HebiCallGraph(Function *main_func) : m_main(main_func) {}
@@ -151,6 +155,8 @@ class HebiCallGraphPass : public ModulePass {
 public:
   static char ID;
   HebiCallGraphPass() : ModulePass(ID) {}
+
+
   virtual bool runOnModule (Module &M) override {
     // errs() << "hello world\n";
     // for (Function &F : M) {
@@ -211,7 +217,7 @@ public:
               unsigned num = call_inst->getNumArgOperands();
               if (num >0) {
               }
-              Value *v = call_inst->getCalledValue();
+              Value *v = call_inst->getCalledOperand();
               if (v) {
                 errs() << "=== value: " << "\n";
                 errs() << *v << "\n";
@@ -254,3 +260,10 @@ char HebiCallGraphPass::ID = 0;
 
 
 static RegisterPass<HebiCallGraphPass> X("hebicg", "Hebi Call Graph Pass", false, false);
+
+#if 0
+static RegisterStandardPasses Y(
+    PassManagerBuilder::EP_EarlyAsPossible,
+    [](const PassManagerBuilder &Builder,
+       legacy::PassManagerBase &PM) { PM.add(new HebiCallGraphPass()); });
+#endif

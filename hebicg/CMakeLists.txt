@@ -1,2 +1,2 @@
-# add_library(HebiPass MODULE Pass.cpp)
-add_library(HebiCallGraphPass MODULE hebicg.cpp)
+
+add_llvm_library(HebiCallGraphPass MODULE hebicg.cpp PLUGIN_TOOL opt)
