@@ -13,7 +13,7 @@ std::string func_name(Function *func) {
   if (func->getName() == "main") return "main";
   DISubprogram *disubprogram = func->getSubprogram();
   if (disubprogram) {
-    return disubprogram->getName().str();
+    return "\"" + disubprogram->getName().str() + "\"";
   }
   return "";
 }
